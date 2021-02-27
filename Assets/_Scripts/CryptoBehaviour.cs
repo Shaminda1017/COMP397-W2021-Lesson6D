@@ -16,7 +16,7 @@ public class CryptoBehaviour : MonoBehaviour
     public LayerMask collisionLayer;
     public Vector3 LOSoffset = new Vector3(0.0f, 2.0f, -5.0f);
     public bool HasLOS;
-    public Vector3 playerLocation;
+    public GameObject player;
 
 
     private NavMeshAgent agent;
@@ -33,21 +33,20 @@ public class CryptoBehaviour : MonoBehaviour
     {
         if (HasLOS)
         {
-            agent.SetDestination(playerLocation);
+            agent.SetDestination(player.transform.position);
+
         }
-        
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            animator.SetInteger("AnimState", (int)CryptoState.IDLE);
-        }
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            animator.SetInteger("AnimState", (int)CryptoState.RUN);
-        }
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            animator.SetInteger("AnimState", (int)CryptoState.JUMP);
-        }        
+
+        if (HasLOS && Vector3.Distance(transform.position, player.transform.position) < 2.5)
+            {   
+                animator.SetInteger("AnimState", (int)CryptoState.IDLE);
+                transform.LookAt(transform.position - player.transform.forward);
+            }
+            else
+            {
+                animator.SetInteger("AnimState", (int)CryptoState.RUN);
+            }         
+
     }
 
     void OnTriggerEnterEenter(Collider other)
@@ -55,24 +54,9 @@ public class CryptoBehaviour : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             HasLOS = true;
-            playerLocation = other.transform.position;
+            player = other.transform.gameObject;
         }
         
-    }
-
-    void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.CompareTag("Player"))
-        {
-            HasLOS = false;
-        }
-    }
-
-    void OnTriggerStay(Collider other)
-    {
-        if (other.gameObject.CompareTag("Player"))
-        {
-            playerLocation = other.transform.position;
-        }
-    }
+    }    
+        
 }
